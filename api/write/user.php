@@ -1,7 +1,6 @@
 <?php
 
 httpRESTMethod::post(function ($pdt){
-    //var_dump($pdt);
     global $db;
     $lastId=0;
     $result = $db->query("
