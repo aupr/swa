@@ -26,33 +26,53 @@ if ($devMode){
 }
 
 
-function response_401(){
-    global $session;
+function responseUnauthorized($destroy = false){
+    if ($destroy) {
+        global $session;
+        $session->data = array();
+    }
     header("HTTP/1.1 401 Unauthorized");
-    $session->data = array();
     exit();
 }
 
-function authGuard() {
+function authGuard($sessAryName = "", $keyword = "") {
     global $session;
     // Check the data available
     if (empty($session->data)){
-        response_401();
+        responseUnauthorized();
     } else {
         // check whether the data is valid or not
-        if (isset($session->data['http-user-agent']) and isset($session->data['user-id'])){
+        if (isset($session->data["user"]["HTTP_USER_AGENT"]) and isset($session->data["user"]['username'])) {
             // Check the data is valid or not
-            if ($session->data['http-user-agent'] == $_SERVER['HTTP_USER_AGENT']){
+            if ($session->data["user"]["HTTP_USER_AGENT"] == $_SERVER['HTTP_USER_AGENT']){
                 // Authentic User
                 // echo "Welcome you are logged in";
+                // Check for the specific user permission
+                if ($sessAryName != "" and $keyword != ""){
+                    if (isset($session->data["permission"][$sessAryName])){
+                        if (isset($session->data["permission"][$sessAryName][$keyword])){
+                            if ($session->data["permission"][$sessAryName][$keyword] == "1" or $session->data["permission"][$sessAryName][$keyword] == 1){
+                                // Authentic for specific permission
+                                // echo "authentic";
+                            } else {
+                                responseUnauthorized();
+                            }
+                        } else {
+                            responseUnauthorized();
+                        }
+                    } else {
+                        responseUnauthorized();
+                    }
+                }
             } else {
-                response_401();
+                responseUnauthorized(true);
             }
         } else {
-            response_401();
+            responseUnauthorized(true);
         }
     }
 }
+
 
 function login($username, $password) {
     global $db;
@@ -96,6 +116,7 @@ group by userId having username='$username' and password='$password'");
         $sessArray["user"]["fullName"] = $user->row["fullName"];
         $sessArray["user"]["username"] = $user->row["username"];
         $sessArray["user"]["userId"] = $user->row["userId"];
+        $sessArray["user"]["HTTP_USER_AGENT"] = $_SERVER['HTTP_USER_AGENT'];
 
         $sessArray["permission"] = array();
 
@@ -106,8 +127,8 @@ group by userId having username='$username' and password='$password'");
             }
         }
 
-        //var_dump($user->row);
-        //var_dump($sessArray);
+        // var_dump($user->row);
+         var_dump($sessArray);
 
         // Assign value to the session
         $session->data = $sessArray;
@@ -123,5 +144,6 @@ group by userId having username='$username' and password='$password'");
 function logout() {
     global $session;
     $session->data = array();
+    return array("status"=>"success");
 }
 

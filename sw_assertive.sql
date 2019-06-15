@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.3
+-- version 4.7.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 15, 2019 at 04:47 AM
--- Server version: 10.1.36-MariaDB
--- PHP Version: 5.6.38
+-- Generation Time: Jun 15, 2019 at 01:14 PM
+-- Server version: 10.1.10-MariaDB
+-- PHP Version: 7.1.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -91,7 +91,10 @@ CREATE TABLE `dgn` (
 
 INSERT INTO `dgn` (`dgnId`, `dgnUserId`, `fromTime`, `toTime`, `title`) VALUES
 (1, 2, 45643643, 43446545, 'trdrertw'),
-(2, 2, 3453254, 345345, 'dfgsgfdfg');
+(2, 2, 3453254, 345345, 'dfgsgfdfg'),
+(3, 1, 5653453, 345345, 'engineer'),
+(6, 15, 45643643, 43446545, 'trdrertw'),
+(7, 15, 3453254, 345345, 'dfgsgfdfg');
 
 -- --------------------------------------------------------
 
@@ -112,7 +115,10 @@ CREATE TABLE `email` (
 
 INSERT INTO `email` (`emailId`, `emailUserId`, `emailType`, `email`) VALUES
 (1, 2, 'h', 'haha@hjdsj'),
-(2, 2, 'yd', 'gjfgd@kjhkjf');
+(2, 2, 'yd', 'gjfgd@kjhkjf'),
+(3, 1, 'Personal', 'als;kfjsd@sdfasd'),
+(6, 15, 'h', 'haha@hjdsj'),
+(7, 15, 'yd', 'gjfgd@kjhkjf');
 
 -- --------------------------------------------------------
 
@@ -178,7 +184,9 @@ INSERT INTO `phone` (`phoneId`, `phoneUserId`, `phoneType`, `number`) VALUES
 (1, 2, 'h', '0987654321'),
 (2, 2, 'p', '34560345678'),
 (3, 1, 'uu', '12345678'),
-(4, 1, 'p', '45689034567');
+(4, 1, 'p', '45689034567'),
+(10, 15, 'h', '0987654321'),
+(11, 15, 'p', '34560345678');
 
 -- --------------------------------------------------------
 
@@ -193,10 +201,10 @@ CREATE TABLE `user` (
   `username` varchar(50) NOT NULL,
   `password` varchar(32) NOT NULL,
   `gender` varchar(15) NOT NULL,
-  `Religion` varchar(20) NOT NULL,
-  `bloodgroup` varchar(10) NOT NULL,
+  `religion` varchar(20) NOT NULL,
+  `bloodGroup` varchar(10) NOT NULL,
   `address` text NOT NULL,
-  `jointime` int(11) DEFAULT NULL,
+  `joinTime` int(11) DEFAULT NULL,
   `userLevelId` int(11) NOT NULL,
   `blocked` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -205,9 +213,10 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`userId`, `name`, `dob`, `username`, `password`, `gender`, `Religion`, `bloodgroup`, `address`, `jointime`, `userLevelId`, `blocked`) VALUES
+INSERT INTO `user` (`userId`, `name`, `dob`, `username`, `password`, `gender`, `religion`, `bloodGroup`, `address`, `joinTime`, `userLevelId`, `blocked`) VALUES
 (1, 'Developer', 56786456, 'developer', '81dc9bdb52d04dc20036dbd8313ed055', 'Male', 'Islam', 'B+', 'Dhaka, Bangladesh', 6568765, 1, 0),
-(2, 'Admin', 76898786, 'admin', '81dc9bdb52d04dc20036dbd8313ed055', 'Male', 'Islam', 'B+', 'Dhaka, Bangladesh', 5454343, 2, 0);
+(2, 'Admin', 76898786, 'admin', '81dc9bdb52d04dc20036dbd8313ed055', 'Male', 'Islam', 'B+', 'Dhaka, Bangladesh', 5454343, 2, 0),
+(15, 'Aman Ullah', 76898786, 'aman', '81dc9bdb52d04dc20036dbd8313ed055', 'Male', 'Islam', 'B+', 'Dhaka, Bangladesh', 5454343, 2, 0);
 
 --
 -- Indexes for dumped tables
@@ -289,13 +298,13 @@ ALTER TABLE `app`
 -- AUTO_INCREMENT for table `dgn`
 --
 ALTER TABLE `dgn`
-  MODIFY `dgnId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `dgnId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `email`
 --
 ALTER TABLE `email`
-  MODIFY `emailId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `emailId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `level`
@@ -313,13 +322,13 @@ ALTER TABLE `permission`
 -- AUTO_INCREMENT for table `phone`
 --
 ALTER TABLE `phone`
-  MODIFY `phoneId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `phoneId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables
