@@ -1,0 +1,127 @@
+<?php
+
+// access layout file to access control
+
+
+// simple login format
+
+$devMode = true;
+$sessionCookieName = "SWASESS";
+if ($devMode){
+    // Allow CORS headers
+    header('Access-Control-Allow-Origin: *');
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+
+
+    // set the defined token for development mode
+    $session->start('thisIsDevelopmentModeToken');
+} else {
+    // Startup the session
+    if ($tokenId = $cookie->get($sessionCookieName)){
+        $session->start($tokenId);
+    } else {
+        $cookie->set($sessionCookieName, $session->start());
+    }
+}
+
+
+function response_401(){
+    global $session;
+    header("HTTP/1.1 401 Unauthorized");
+    $session->data = array();
+    exit();
+}
+
+function authGuard() {
+    global $session;
+    // Check the data available
+    if (empty($session->data)){
+        response_401();
+    } else {
+        // check whether the data is valid or not
+        if (isset($session->data['http-user-agent']) and isset($session->data['user-id'])){
+            // Check the data is valid or not
+            if ($session->data['http-user-agent'] == $_SERVER['HTTP_USER_AGENT']){
+                // Authentic User
+                // echo "Welcome you are logged in";
+            } else {
+                response_401();
+            }
+        } else {
+            response_401();
+        }
+    }
+}
+
+function login($username, $password) {
+    global $db;
+    global $session;
+    $password = md5($password);
+    // fetch data from database and verify
+
+    $user = $db->query("select userId, username, name as fullName, password, title as userLevel,
+coalesce(concat('[',group_concat(concat('{\"sessAryName\":\"',sessAryName,'\",\"access\":',access,',\"defaultAccess\":',defaultAccess,'}')),']')) as appAccess
+ from (select *,
+COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',access.keyword,'\",\"definition\":\"',access.definition,'\",\"val\":',access.val,'}')),']'),'[]') AS defaultAccess
+ from (select * from (select * from
+(select * from user left join level on userLevelId=levelId) as t1
+left join permission on t1.levelId=permission.permissionLevelId) as t2
+left join app on app.appId=t2.permissionAppId) as t3
+left join access on access.accessAppId=t3.appId
+group by accessAppId, userId) as t4 
+group by userId having username='$username' and password='$password'");
+
+    if ($user->num_rows){
+        $user->row["appAccess"] = JSON_DECODE($user->row["appAccess"]);
+
+        foreach ($user->row["appAccess"] as $key=>$value){
+            $user->row["appAccess"][$key]->accessList =  array_map(function ($object) { return clone $object; }, $user->row["appAccess"][$key]->defaultAccess);
+            $access = array();
+            foreach ($user->row["appAccess"][$key]->access as $k=>$v) {
+                $access[$v->keyword] = $v->val;
+            }
+            foreach ($user->row["appAccess"][$key]->accessList as $k=>$v) {
+                if (isset($access[$v->keyword])){
+                    $user->row["appAccess"][$key]->accessList[$k]->val = $access[$v->keyword];
+                }
+            }
+
+            unset($user->row["appAccess"][$key]->defaultAccess);
+            unset($user->row["appAccess"][$key]->access);
+        }
+
+        // setup session variables
+        $sessArray = array();
+        $sessArray["user"]["fullName"] = $user->row["fullName"];
+        $sessArray["user"]["username"] = $user->row["username"];
+        $sessArray["user"]["userId"] = $user->row["userId"];
+
+        $sessArray["permission"] = array();
+
+        foreach ($user->row["appAccess"] as $key=>$val){
+            $sessArray["permission"][$val->sessAryName] = array();
+            foreach ($val->accessList as $k=>$v){
+                $sessArray["permission"][$val->sessAryName][$v->keyword] = $v->val;
+            }
+        }
+
+        //var_dump($user->row);
+        //var_dump($sessArray);
+
+        // Assign value to the session
+        $session->data = $sessArray;
+
+        return array("status"=>"success");
+    } else {
+        $session->data = array();
+
+        return array("status"=>"failed");
+    }
+}
+
+function logout() {
+    global $session;
+    $session->data = array();
+}
+
