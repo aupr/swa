@@ -2,7 +2,7 @@
 
 httpRESTMethod::get(function (){
     global $db;
-    $permission = $db->query("SELECT permissionId, access, title, description, appName, url, sessAryName, remark, COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',access.keyword,'\",\"definition\":\"',access.definition,'\",\"val\":',access.val,'}')),']'),'[]') AS defaultAccess FROM (SELECT * FROM (SELECT * FROM permission LEFT JOIN level ON level.levelId=permission.permissionLevelId) AS t1 LEFT JOIN app ON app.appId=permissionAppId) AS t2 LEFT JOIN access ON access.accessAppId=t2.appId GROUP BY access.accessAppId");
+    $permission = $db->query("SELECT permissionId, appId, levelId, access, title, description, appName, url, sessAryName, remark, COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',access.keyword,'\",\"definition\":\"',access.definition,'\",\"val\":',access.val,'}')),']'),'[]') AS defaultAccess FROM (SELECT * FROM (SELECT * FROM permission LEFT JOIN level ON level.levelId=permission.permissionLevelId) AS t1 LEFT JOIN app ON app.appId=permissionAppId) AS t2 LEFT JOIN access ON access.accessAppId=t2.appId GROUP BY access.accessAppId, t2.permissionId");
 
     foreach ($permission->rows as $key => $value) {
         $permission->rows[$key]["access"] = JSON_DECODE($permission->rows[$key]["access"]);
@@ -27,7 +27,7 @@ httpRESTMethod::get(function (){
 httpRESTMethod::post(function ($dt){
     $permissionId = $dt->permissionId;
     global $db;
-    $permission = $db->query("SELECT permissionId, access, title, description, appName, url, sessAryName, remark, COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',access.keyword,'\",\"definition\":\"',access.definition,'\",\"val\":',access.val,'}')),']'),'[]') AS defaultAccess FROM (SELECT * FROM (SELECT * FROM permission LEFT JOIN level ON level.levelId=permission.permissionLevelId) AS t1 LEFT JOIN app ON app.appId=permissionAppId) AS t2 LEFT JOIN access ON access.accessAppId=t2.appId GROUP BY access.accessAppId HAVING permissionId=$permissionId");
+    $permission = $db->query("SELECT permissionId, appId, levelId, access, title, description, appName, url, sessAryName, remark, COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',access.keyword,'\",\"definition\":\"',access.definition,'\",\"val\":',access.val,'}')),']'),'[]') AS defaultAccess FROM (SELECT * FROM (SELECT * FROM permission LEFT JOIN level ON level.levelId=permission.permissionLevelId) AS t1 LEFT JOIN app ON app.appId=permissionAppId) AS t2 LEFT JOIN access ON access.accessAppId=t2.appId GROUP BY access.accessAppId, t2.permissionId HAVING permissionId=$permissionId");
 
     if ($permission->num_rows) {
         $permission->row["access"] = JSON_DECODE($permission->row["access"]);
