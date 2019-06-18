@@ -2,57 +2,95 @@
 
 
 httpRESTMethod::post(function ($pdt){
-    var_dump($pdt);
+    //var_dump($pdt);
+    global $db;
+
+    $appDfltAccesses = $db->query("SELECT * FROM `access` WHERE `access`.`accessAppId` = '$pdt->appId';");
+
+    //mapping app default accesses
+    $dfltAccessMap = array();
+    foreach ($appDfltAccesses->rows as $index=>$appDfltAccess){
+        $dfltAccessMap[$appDfltAccess["keyword"]] = $appDfltAccess["val"];
+    }
+
+
+    // making default access modifier
+    $modifiedAccesses = array();
+    foreach ($pdt->accessList as $index=>$access){
+        //var_dump($access);
+        if (isset($dfltAccessMap[$access->keyword])){
+            if ($dfltAccessMap[$access->keyword] == $access->val){
+                //echo "equal\n";
+            } else {
+                //echo "unequal\n";
+                array_push($modifiedAccesses, array("keyword"=>$access->keyword, "val"=>$access->val));
+            }
+        }
+    }
+
+    $modifiedPermissionJSON = JSON_encode($modifiedAccesses);
+    $result = $db->query("UPDATE `permission` SET `access` = '$modifiedPermissionJSON' WHERE `permission`.`permissionId` = '$pdt->permissionId';");
+
+    return $result;
 });
 
 
 /*
 object(stdClass)#17 (10) {
-["permissionId"]=>
+  ["permissionId"]=>
   string(1) "1"
-["appId"]=>
+  ["appId"]=>
   string(1) "1"
-["levelId"]=>
+  ["levelId"]=>
   string(1) "1"
-["title"]=>
-  string(11) "developerxx"
-["description"]=>
-  string(70) "developer can do anything with super access to all over the system.xxx"
-["appName"]=>
-  string(27) "Client Management Systemxxx"
-["url"]=>
-  string(38) "xxxhttp://aslsdfsdfk.com/asfsdf/sadfds"
-["sessAryName"]=>
+  ["title"]=>
+  string(9) "developer"
+  ["description"]=>
+  string(67) "developer can do anything with super access to all over the system."
+  ["appName"]=>
+  string(24) "Client Management System"
+  ["url"]=>
+  string(35) "http://aslsdfsdfk.com/asfsdf/sadfds"
+  ["sessAryName"]=>
   string(3) "cms"
-["remark"]=>
-  string(29) "xxxlorem imsem dolor sit amet"
-["accessList"]=>
-  array(3) {
+  ["remark"]=>
+  string(26) "lorem imsem dolor sit amet"
+  ["accessList"]=>
+  array(4) {
     [0]=>
     object(stdClass)#18 (3) {
-    ["keyword"]=>
-      string(5) "pprm2"
-    ["definition"]=>
-      string(13) "parameter two"
-    ["val"]=>
+      ["keyword"]=>
+      string(4) "prm1"
+      ["definition"]=>
+      string(13) "parameter one"
+      ["val"]=>
       int(0)
     }
     [1]=>
     object(stdClass)#19 (3) {
-    ["keyword"]=>
-      string(5) "pprm3"
-["definition"]=>
-      string(15) "parameter three"
-["val"]=>
+      ["keyword"]=>
+      string(4) "prm2"
+      ["definition"]=>
+      string(13) "parameter two"
+      ["val"]=>
       int(1)
     }
     [2]=>
     object(stdClass)#20 (3) {
-    ["keyword"]=>
-      string(5) "pprm4"
-["definition"]=>
+      ["keyword"]=>
+      string(4) "prm3"
+      ["definition"]=>
+      string(15) "parameter three"
+      ["val"]=>
+      int(0)
+    }
+    [3]=>
+    object(stdClass)#21 (3) {
+      ["keyword"]=>
+      string(4) "prm4"
+      ["definition"]=>
       string(14) "parameter four"
-["val"]=>
+      ["val"]=>
       int(1)
     }
   }
@@ -67,25 +105,30 @@ object(stdClass)#17 (10) {
     "permissionId": "1",
     "appId": "1",
     "levelId": "1",
-    "title": "developerxx",
-    "description": "developer can do anything with super access to all over the system.xxx",
-    "appName": "Client Management Systemxxx",
-    "url": "xxxhttp://aslsdfsdfk.com/asfsdf/sadfds",
+    "title": "developer",
+    "description": "developer can do anything with super access to all over the system.",
+    "appName": "Client Management System",
+    "url": "http://aslsdfsdfk.com/asfsdf/sadfds",
     "sessAryName": "cms",
-    "remark": "xxxlorem imsem dolor sit amet",
+    "remark": "lorem imsem dolor sit amet",
     "accessList": [
         {
-            "keyword": "pprm2",
-            "definition": "parameter two",
+            "keyword": "prm1",
+            "definition": "parameter one",
             "val": 0
         },
         {
-            "keyword": "pprm3",
-            "definition": "parameter three",
+            "keyword": "prm2",
+            "definition": "parameter two",
             "val": 1
         },
         {
-            "keyword": "pprm4",
+            "keyword": "prm3",
+            "definition": "parameter three",
+            "val": 0
+        },
+        {
+            "keyword": "prm4",
             "definition": "parameter four",
             "val": 1
         }
