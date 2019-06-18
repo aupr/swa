@@ -128,7 +128,7 @@ group by userId having username='$username' and password='$password'");
         }
 
         // var_dump($user->row);
-         var_dump($sessArray);
+        // var_dump($sessArray);
 
         // Assign value to the session
         $session->data = $sessArray;
