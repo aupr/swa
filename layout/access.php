@@ -74,7 +74,7 @@ function authGuard($sessAryName = "", $keyword = "") {
 }
 
 
-function login($username, $password) {
+function signin($username, $password) {
     global $db;
     global $session;
     $password = md5($password);
@@ -141,7 +141,7 @@ group by userId having username='$username' and password='$password'");
     }
 }
 
-function logout() {
+function signout() {
     global $session;
     $session->data = array();
     return array("status"=>"success");

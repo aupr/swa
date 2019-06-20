@@ -1,9 +1,9 @@
 <?php
 
 httpRESTMethod::get(function (){
-    return logout();
+    return signout();
 });
 
 httpRESTMethod::post(function ($dt){
-    return logout();
+    return signout();
 });
