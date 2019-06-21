@@ -80,8 +80,10 @@ function signin($username, $password) {
     $password = md5($password);
     // fetch data from database and verify
 
-    $user = $db->query("select userId, username, name as fullName, password, title as userLevel,
-coalesce(concat('[',group_concat(concat('{\"sessAryName\":\"',sessAryName,'\",\"access\":',access,',\"defaultAccess\":',defaultAccess,'}')),']')) as appAccess
+    $user = $db->query("select userId, username, name as fullName, password, title as userLevel, appAccess, primeAccessMod,
+COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',prime.keyword,'\",\"definition\":\"',prime.definition,'\",\"val\":',prime.val,'}')),']'),'[]') as primeAccess
+from (select *,
+coalesce(concat('[',group_concat(concat('{\"appId\":',appId,',\"appName\":\"',appName,'\",\"url\":\"',url,'\",\"remark\":\"',remark,'\",\"sessAryName\":\"',sessAryName,'\",\"disabled\":',disabled,',\"access\":',access,',\"defaultAccess\":',defaultAccess,'}')),']')) as appAccess
  from (select *,
 COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',access.keyword,'\",\"definition\":\"',access.definition,'\",\"val\":',access.val,'}')),']'),'[]') AS defaultAccess
  from (select * from (select * from
@@ -90,10 +92,12 @@ left join permission on t1.levelId=permission.permissionLevelId) as t2
 left join app on app.appId=t2.permissionAppId) as t3
 left join access on access.accessAppId=t3.appId
 group by accessAppId, userId) as t4 
-group by userId having username='$username' and password='$password'");
+group by userId) as t5 JOIN prime group by userId having username='$username' and password='$password'");
 
     if ($user->num_rows){
         $user->row["appAccess"] = JSON_DECODE($user->row["appAccess"]);
+        $user->row["primeAccess"] = JSON_DECODE($user->row["primeAccess"]);
+        $user->row["primeAccessMod"] = JSON_DECODE($user->row["primeAccessMod"]);
 
         foreach ($user->row["appAccess"] as $key=>$value){
             $user->row["appAccess"][$key]->accessList =  array_map(function ($object) { return clone $object; }, $user->row["appAccess"][$key]->defaultAccess);
@@ -119,18 +123,52 @@ group by userId having username='$username' and password='$password'");
         $sessArray["user"]["HTTP_USER_AGENT"] = $_SERVER['HTTP_USER_AGENT'];
 
         $sessArray["permission"] = array();
+        $sessArray["appList"] = array();
 
         foreach ($user->row["appAccess"] as $key=>$val){
+            //making appList
+            array_push($sessArray["appList"], array(
+                "appId"=>$val->appId,
+                "appName"=>$val->appName,
+                "url"=>$val->url,
+                "sessAryName"=>$val->sessAryName,
+                "remark"=>$val->remark,
+                "disabled"=>$val->disabled
+            ));
+
+            // setup permission
             $sessArray["permission"][$val->sessAryName] = array();
             foreach ($val->accessList as $k=>$v){
                 $sessArray["permission"][$val->sessAryName][$v->keyword] = $v->val;
             }
         }
 
-        // var_dump($user->row);
-        // var_dump($sessArray);
+
+
+        $primeAccessModArray = array();
+        foreach ($user->row["primeAccessMod"] as $index=>$value) {
+            $primeAccessModArray[$value->keyword] = $value->val;
+        }
+
+
+        $sessArray["primeAccess"] = array();
+        foreach ($user->row["primeAccess"] as $index=>$value){
+            if (isset($primeAccessModArray[$value->keyword])) {
+                $sessArray{"primeAccess"}[$value->keyword] = $primeAccessModArray[$value->keyword];
+            } else {
+                $sessArray{"primeAccess"}[$value->keyword] = $value->val;
+            }
+        }
+
+
+        //
+
+         //var_dump($user->row);
+         // var_dump($sessArray);
 
         // Assign value to the session
+
+
         $session->data = $sessArray;
 
         return array("status"=>"success");

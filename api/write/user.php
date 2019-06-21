@@ -5,9 +5,9 @@ httpRESTMethod::post(function ($pdt){
     $lastId=0;
     $result = $db->query("
 INSERT INTO user 
-(name, dob, username, password, gender, religion, bloodGroup, address, joinTime, userLevelId)
+(name, dob, username, password, gender, religion, bloodGroup, address, joinTime, userLevelId, assertive)
  VALUES 
- ('$pdt->name', '$pdt->dob', '$pdt->username', '$pdt->password', '$pdt->gender', '$pdt->religion', '$pdt->bloodGroup', '$pdt->address', '$pdt->joinTime', '$pdt->userLevelId')
+ ('$pdt->name', '$pdt->dob', '$pdt->username', '$pdt->password', '$pdt->gender', '$pdt->religion', '$pdt->bloodGroup', '$pdt->address', '$pdt->joinTime', '$pdt->userLevelId', '[]')
  ");
 
     if ($result){
