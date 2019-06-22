@@ -48,7 +48,18 @@ function authGuard($sessAryName = "", $keyword = "") {
                 // Authentic User
                 // echo "Welcome you are logged in";
                 // Check for the specific user permission
-                if ($sessAryName != "" and $keyword != ""){
+                if ($sessAryName == "primeAccess"){
+                    if (isset($session->data["primeAccess"][$keyword])){
+                        if ($session->data["primeAccess"][$keyword] == 1 or $session->data["primeAccess"][$keyword] == "1"){
+                            // Authentic user
+                        } else {
+                            responseUnauthorized();
+                        }
+                    } else {
+                        responseUnauthorized();
+                    }
+                }
+                else if ($sessAryName != "" and $keyword != ""){
                     if (isset($session->data["permission"][$sessAryName])){
                         if (isset($session->data["permission"][$sessAryName][$keyword])){
                             if ($session->data["permission"][$sessAryName][$keyword] == "1" or $session->data["permission"][$sessAryName][$keyword] == 1){
