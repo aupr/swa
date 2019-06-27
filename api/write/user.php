@@ -3,11 +3,12 @@
 httpRESTMethod::post(function ($pdt){
     global $db;
     $lastId=0;
+    $password = md5($pdt->password);
     $result = $db->query("
 INSERT INTO user 
-(name, dob, username, password, gender, religion, bloodGroup, address, joinTime, userLevelId, assertive)
+(name, dob, username, password, gender, religion, bloodGroup, address, joinTime, userLevelId, primeAccessMod)
  VALUES 
- ('$pdt->name', '$pdt->dob', '$pdt->username', '$pdt->password', '$pdt->gender', '$pdt->religion', '$pdt->bloodGroup', '$pdt->address', '$pdt->joinTime', '$pdt->userLevelId', '[]')
+ ('$pdt->name', '$pdt->dob', '$pdt->username', '$password', '$pdt->gender', '$pdt->religion', '$pdt->bloodGroup', '$pdt->address', '$pdt->joinTime', '$pdt->userLevelId', '[]')
  ");
 
     if ($result){
