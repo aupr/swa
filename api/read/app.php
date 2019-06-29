@@ -1,5 +1,5 @@
 <?php
-authGuard("primeAccess","manageApp");
+//authGuard("primeAccess","manageApp");
 
 httpRESTMethod::get(function (){
     global $db;
