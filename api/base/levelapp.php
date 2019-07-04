@@ -22,8 +22,6 @@ httpRESTMethod::get(function (){
 
         return $level->rows;
     }
-
-
 });
 
 
