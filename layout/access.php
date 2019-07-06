@@ -91,10 +91,12 @@ function signin($username, $password) {
     $password = md5($password);
     // fetch data from database and verify
 
+    // To increase the sql group concat function
+    $db->query("SET SESSION group_concat_max_len = 1000000;");
     $user = $db->query("select userId, username, name as fullName, password, title as userLevel, appAccess, primeAccessMod,
 COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',prime.keyword,'\",\"definition\":\"',prime.definition,'\",\"val\":',prime.val,'}')),']'),'[]') as primeAccess
 from (select *,
-coalesce(concat('[',group_concat(concat('{\"appId\":',appId,',\"appName\":\"',appName,'\",\"url\":\"',url,'\",\"remark\":\"',remark,'\",\"sessAryName\":\"',sessAryName,'\",\"disabled\":',disabled,',\"access\":',access,',\"defaultAccess\":',defaultAccess,'}')),']')) as appAccess
+COALESCE(concat('[',GROUP_CONCAT(CONCAT('{\"appId\":',appId,',\"appName\":\"',appName,'\",\"url\":\"',url,'\",\"remark\":\"',remark,'\",\"sessAryName\":\"',sessAryName,'\",\"disabled\":',disabled,',\"access\":',access,',\"defaultAccess\":',defaultAccess,'}')),']'),'[]') as appAccess
  from (select *,
 COALESCE(CONCAT('[',GROUP_CONCAT(CONCAT('{\"keyword\":\"',access.keyword,'\",\"definition\":\"',access.definition,'\",\"val\":',access.val,'}')),']'),'[]') AS defaultAccess
  from (select * from (select * from
@@ -109,6 +111,7 @@ group by userId) as t5 JOIN prime group by userId having username='$username' an
         $user->row["appAccess"] = JSON_DECODE($user->row["appAccess"]);
         $user->row["primeAccess"] = JSON_DECODE($user->row["primeAccess"]);
         $user->row["primeAccessMod"] = JSON_DECODE($user->row["primeAccessMod"]);
+
 
         foreach ($user->row["appAccess"] as $key=>$value){
             $user->row["appAccess"][$key]->accessList =  array_map(function ($object) { return clone $object; }, $user->row["appAccess"][$key]->defaultAccess);
