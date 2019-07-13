@@ -2,7 +2,7 @@
 
 
 httpRESTMethod::get(function (){
-    authGuard("primeAccess", "manageUser");
+    // authGuard("primeAccess", "manageUser");
     global $db;
 
     if (isset($_GET["id"])) {
@@ -69,8 +69,8 @@ INSERT INTO user
 
 httpRESTMethod::put(function ($pdt){
     global $db;
-    $delete = $pdt->delete;
-    $update = $pdt->update;
+    //$delete = $pdt->delete;
+    $update = $pdt;
 
     // To update the main data
     $result = $db->query("
@@ -87,40 +87,58 @@ UPDATE `user` SET
 WHERE `user`.`userId` = $update->userId;
 ");
 
-    // To update the array data
+    // To update the phone array data
+    $backData = $db->query("SELECT `phoneId` FROM `phone` WHERE `phoneUserId` = '$update->userId'");
+    $phonesDeleteMap = array();
+    foreach ($backData->rows as $key=>$val) {
+        $phonesDeleteMap[$val["phoneId"]] = $val["phoneId"];
+    }
     foreach ($update->phones as $index=>$phone){
+        unset($phonesDeleteMap[$phone->phoneId]);
         if ($phone->phoneId != null){
             $result = $db->query("UPDATE `phone` SET `phoneType` = '$phone->phoneType', `number` = '$phone->number' WHERE `phone`.`phoneId` = $phone->phoneId;");
         } else {
             $result = $db->query("INSERT INTO `phone` (phoneUserId, phoneType, number) VALUES ('$update->userId', '$phone->phoneType', '$phone->number');");
         }
     }
+    foreach ($phonesDeleteMap as $val) {
+        $result = $db->query("DELETE FROM `phone` WHERE `phoneId` = '$val'");
+    }
 
+    // To update the email array data
+    $backData = $db->query("SELECT `emailId` FROM `email` WHERE `emailUserId` = '$update->userId'");
+    $emailDeleteMap = array();
+    foreach ($backData->rows as $val){
+        $emailDeleteMap[$val["emailId"]] = $val["emailId"];
+    }
     foreach ($update->emails as $index=>$email){
+        unset($emailDeleteMap[$email->emailId]);
         if ($email->emailId != null){
             $result = $db->query("UPDATE `email` SET `emailType` = '$email->emailType', `email` = '$email->email' WHERE `email`.`emailId` = $email->emailId;");
         } else {
             $result = $db->query("INSERT INTO `email` (emailUserId, emailType, email) VALUES ('$update->userId', '$email->emailType', '$email->email');");
         }
     }
+    foreach ($emailDeleteMap as $val) {
+        $result = $db->query("DELETE FROM `email` WHERE `emailId` = $val");
+    }
 
+    // To update designations
+    $backData = $db->query("SELECT `dgnId` FROM `dgn` WHERE `dgnUserId`='$update->userId'");
+    $dgnDeleteMap = array();
+    foreach ($backData->rows as $val){
+        $dgnDeleteMap[$val["dgnId"]] = $val["dgnId"];
+    }
     foreach ($update->designations as $index=>$designation){
+        unset($dgnDeleteMap[$designation->dgnId]);
         if($designation->dgnId != null){
             $result = $db->query("UPDATE `dgn` SET `fromTime` = '$designation->fromTime', `toTime` = '$designation->toTime', `title` = '$designation->title' WHERE `dgn`.`dgnId`=$designation->dgnId;");
         } else {
             $result = $db->query("INSERT INTO `dgn` (dgnUserId, fromTime, toTime, title) VALUES ('$update->userId', '$designation->fromTime', '$designation->toTime', '$designation->title');");
         }
     }
-
-    // To delete the data
-    foreach ($delete->phones as $index=>$phone){
-        $result = $db->query("DELETE FROM `phone` WHERE `phone`.`phoneId` = $phone->phoneId;");
-    }
-    foreach ($delete->emails as $index=>$email){
-        $result = $db->query("DELETE FROM `email` WHERE `email`.`emailId` = $email->emailId;");
-    }
-    foreach ($delete->designations as $index=>$designation){
-        $result = $db->query("DELETE FROM `dgn` WHERE `dgn`.`dgnId` = $designation->dgnId;");
+    foreach ($dgnDeleteMap as $value) {
+        $result = $db->query("DELETE FROM `dgn` WHERE `dgnId` = '$value'");
     }
 
     return $result;
