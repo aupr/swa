@@ -10,14 +10,14 @@ httpRESTMethod::get(function () {
 
 
     $primeAccessModArray = array();
-    foreach ($user->row["primeAccessMod"] as $index=>$value) {
+    foreach ($user->row["primeAccessMod"] as $index => $value) {
         $primeAccessModArray[$value->keyword] = $value->val;
     }
 
 
     //$primeAccess = array();
     //var_dump($user->row["primeAccess"]);
-    foreach ($user->row["primeAccess"] as $index=>$value){
+    foreach ($user->row["primeAccess"] as $index => $value) {
         if (isset($primeAccessModArray[$value->keyword])) {
             $user->row["primeAccess"][$index]->val = $primeAccessModArray[$value->keyword];
         }
@@ -28,7 +28,7 @@ httpRESTMethod::get(function () {
 });
 
 
-httpRESTMethod::put(function ($primeAccessMod){
+httpRESTMethod::put(function ($primeAccessMod) {
     global $db;
     $userId = $_GET["id"];
     // var_dump($primeAccessMod);
@@ -38,7 +38,7 @@ httpRESTMethod::put(function ($primeAccessMod){
 
     $arrayToStore = array_map(function ($value) use ($primeAccessMod) {
 
-        $filterVal = array_filter($primeAccessMod, function ($val) use ($value){
+        $filterVal = array_filter($primeAccessMod, function ($val) use ($value) {
             return ($val->keyword == $value["keyword"]);
         });
 
@@ -49,7 +49,7 @@ httpRESTMethod::put(function ($primeAccessMod){
 
             // return the desired data or null
             if ($filterVal->val != $value["val"]) {
-                return array("keyword"=>$value["keyword"], "val"=>$filterVal->val);
+                return array("keyword" => $value["keyword"], "val" => $filterVal->val);
             } else {
                 return null;
             }
@@ -69,8 +69,6 @@ httpRESTMethod::put(function ($primeAccessMod){
 
     return $result;
 });
-
-
 
 
 /*$primeAccessDefault = $db->query("SELECT * FROM `prime`")->rows;
