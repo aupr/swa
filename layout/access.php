@@ -5,7 +5,7 @@
 
 // simple login format
 
-$devMode = true;
+$devMode = false;
 $sessionCookieName = "SWASESS";
 if ($devMode){
     // Allow CORS headers
