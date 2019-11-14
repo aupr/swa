@@ -1,4 +1,6 @@
 <?php
+authGuard("primeAccess", "userLevelManage");
+
 
 httpRESTMethod::get(function (){
     global $db;

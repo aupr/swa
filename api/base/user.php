@@ -2,7 +2,7 @@
 
 
 httpRESTMethod::get(function (){
-    // authGuard("primeAccess", "manageUser");
+    //authGuard("primeAccess", "usersPage");
     global $db;
 
     if (isset($_GET["id"])) {
@@ -33,8 +33,9 @@ httpRESTMethod::get(function (){
 });
 
 
-
+// Add new user
 httpRESTMethod::post(function ($pdt){
+    authGuard("primeAccess", "addNewUser");
     global $db;
     $lastId=0;
     $password = md5($pdt->password);
@@ -66,8 +67,9 @@ INSERT INTO user
     return $result;
 });
 
-
+// Edit user
 httpRESTMethod::put(function ($pdt){
+    authGuard("primeAccess", "editUser");
     global $db;
     //$delete = $pdt->delete;
     $update = $pdt;

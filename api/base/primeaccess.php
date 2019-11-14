@@ -1,4 +1,5 @@
 <?php
+authGuard("primeAccess", "primeAccessControl");
 
 httpRESTMethod::get(function () {
     global $db;

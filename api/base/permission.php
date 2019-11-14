@@ -1,5 +1,5 @@
 <?php
-
+authGuard("primeAccess", "applicationManage");
 
 
 httpRESTMethod::get(function (){
